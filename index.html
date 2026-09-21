@@ -52,11 +52,11 @@
       <button data-view="uco"><span class="ico">∑</span><span>Metodo UCO</span></button>
       <button data-view="settings"><span class="ico">⚙</span><span>Regole e dati</span></button>
     </nav>
-    <div class="side-foot"><b>Weekly Operational Pressure</b><br>Governare il carico. Proteggere l’execution.<br><br>Versione v4.6</div>
+    <div class="side-foot"><b>Weekly Operational Pressure</b><br>Governare il carico. Proteggere l’execution.<br><br>Versione v4.7</div>
   </aside>
   <main>
     <header class="topbar">
-      <div style="display:flex;align-items:center;gap:11px"><button class="mobile-menu" id="mobileMenu">☰</button><h1 id="topTitle">Dashboard</h1><span class="app-version">v4.6</span></div>
+      <div style="display:flex;align-items:center;gap:11px"><button class="mobile-menu" id="mobileMenu">☰</button><h1 id="topTitle">Dashboard</h1><span class="app-version">v4.7</span></div>
       <div class="top-actions"><span class="date-pill" id="todayLabel"></span><button class="btn" id="quickPrint">Crea PDF</button><button class="btn dark" id="quickExcel">Crea Excel</button></div>
     </header>
     <div class="content">
@@ -221,6 +221,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   const CRM_TYPES=['WASelling','TSelling','Varie'];
   const SCIENTIFIC_UCO_CATEGORIES=['Promo','Visual','Movimentazione Merce','Altro'];
   const QUALITATIVE_LEVELS=['Alto','Medio','Basso','Nullo'];
+  const SALES_PERIOD_MULTIPLIER=1.5;
   const VISUAL_INTERVENTIONS=[
     {key:'ALLESTIMENTO_TOTALE',label:'Allestimento Totale',config:'allestimentoTotaleUco'},
     {key:'CAMBIO_VETRINE',label:'Cambio Vetrine',config:'cambioVetrineUco'},
@@ -440,7 +441,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function promoUsesDualPeriodModel(a){const d=a?.ucoData||{};return[d.extraSales,d.sales,d.extraPeriodStart,d.extraPeriodBody,d.extraPeriodEnd,d.salesPeriodStart,d.salesPeriodBody,d.salesPeriodEnd].every(x=>QUALITATIVE_LEVELS.includes(x))}
   function promoUsesLegacyPeriodModel(a){const d=a?.ucoData||{};return[d.extraSales,d.sales,d.periodStart,d.periodBody,d.periodEnd].every(x=>QUALITATIVE_LEVELS.includes(x))}
   function promoUsesNewModel(a){return promoUsesPeriodOnlyModel(a)||promoUsesDualPeriodModel(a)||promoUsesLegacyPeriodModel(a)}
-  function promoPhaseUcos(d,cfg=state.ucoConfig.Promo){const periodOnly=[d.extraPeriodStart,d.extraPeriodBody,d.extraPeriodEnd,d.salesPeriodStart,d.salesPeriodBody,d.salesPeriodEnd].every(x=>QUALITATIVE_LEVELS.includes(x))&&!QUALITATIVE_LEVELS.includes(d.extraSales)&&!QUALITATIVE_LEVELS.includes(d.sales);if(periodOnly)return{start:qualitativeUco(d.extraPeriodStart,cfg)+qualitativeUco(d.salesPeriodStart,cfg),body:qualitativeUco(d.extraPeriodBody,cfg)+qualitativeUco(d.salesPeriodBody,cfg),end:qualitativeUco(d.extraPeriodEnd,cfg)+qualitativeUco(d.salesPeriodEnd,cfg)};const baseExtra=qualitativeUco(d.extraSales,cfg),baseSales=qualitativeUco(d.sales,cfg),dual=[d.extraPeriodStart,d.extraPeriodBody,d.extraPeriodEnd,d.salesPeriodStart,d.salesPeriodBody,d.salesPeriodEnd].every(x=>QUALITATIVE_LEVELS.includes(x));if(dual)return{start:baseExtra+qualitativeUco(d.extraPeriodStart,cfg)+baseSales+qualitativeUco(d.salesPeriodStart,cfg),body:baseExtra+qualitativeUco(d.extraPeriodBody,cfg)+baseSales+qualitativeUco(d.salesPeriodBody,cfg),end:baseExtra+qualitativeUco(d.extraPeriodEnd,cfg)+baseSales+qualitativeUco(d.salesPeriodEnd,cfg)};const base=baseExtra+baseSales;return{start:base+qualitativeUco(d.periodStart,cfg),body:base+qualitativeUco(d.periodBody,cfg),end:base+qualitativeUco(d.periodEnd,cfg)}}
+  function promoPhaseUcos(d,cfg=state.ucoConfig.Promo){const periodOnly=[d.extraPeriodStart,d.extraPeriodBody,d.extraPeriodEnd,d.salesPeriodStart,d.salesPeriodBody,d.salesPeriodEnd].every(x=>QUALITATIVE_LEVELS.includes(x))&&!QUALITATIVE_LEVELS.includes(d.extraSales)&&!QUALITATIVE_LEVELS.includes(d.sales),salesPeriodUco=level=>qualitativeUco(level,cfg)*SALES_PERIOD_MULTIPLIER;if(periodOnly)return{start:qualitativeUco(d.extraPeriodStart,cfg)+salesPeriodUco(d.salesPeriodStart),body:qualitativeUco(d.extraPeriodBody,cfg)+salesPeriodUco(d.salesPeriodBody),end:qualitativeUco(d.extraPeriodEnd,cfg)+salesPeriodUco(d.salesPeriodEnd)};const baseExtra=qualitativeUco(d.extraSales,cfg),baseSales=qualitativeUco(d.sales,cfg),dual=[d.extraPeriodStart,d.extraPeriodBody,d.extraPeriodEnd,d.salesPeriodStart,d.salesPeriodBody,d.salesPeriodEnd].every(x=>QUALITATIVE_LEVELS.includes(x));if(dual)return{start:baseExtra+qualitativeUco(d.extraPeriodStart,cfg)+baseSales+salesPeriodUco(d.salesPeriodStart),body:baseExtra+qualitativeUco(d.extraPeriodBody,cfg)+baseSales+salesPeriodUco(d.salesPeriodBody),end:baseExtra+qualitativeUco(d.extraPeriodEnd,cfg)+baseSales+salesPeriodUco(d.salesPeriodEnd)};const base=baseExtra+baseSales;return{start:base+qualitativeUco(d.periodStart,cfg),body:base+qualitativeUco(d.periodBody,cfg),end:base+qualitativeUco(d.periodEnd,cfg)}}
   function promoWeekUco(a,year,week){if(!promoUsesNewModel(a))return 0;const mix=activityWeekPeriodMix(a,year,week);if(!mix.days)return 0;const values=promoPhaseUcos(a.ucoData||{});return values.start*mix.start+values.body*mix.body+values.end*mix.end}
   function visualInterventionUco(type,cfg=state.ucoConfig.Visual){const item=VISUAL_INTERVENTIONS.find(x=>x.key===type);return item?Math.max(0,+cfg[item.config]||0):0}
   function inferVisualIntervention(d={}){if(VISUAL_INTERVENTIONS.some(x=>x.key===d.type))return d.type;const legacy=String(d.type||'').toUpperCase();if(legacy==='FULL LAYOUT')return'ALLESTIMENTO_TOTALE';if(legacy==='VETRINA')return'CAMBIO_VETRINE';if(legacy==='WELCOME AREA')return'CAMBIO_WA';if(['PARETE','TAVOLO','STAND','ACCESSORI'].includes(legacy))return'CAMBIO_INSTORE';return'ALLESTIMENTO_TOTALE'}
@@ -532,7 +533,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function exportYear(year){const d=state.scores[year],ts=totals(year);let table='<table border="1"><tr><th>Leva</th>'+d.weeks.map(w=>'<th>'+w+'</th>').join('')+'</tr>'+cats.map(c=>'<tr><td>'+c+'</td>'+d.categories[c].map(v=>'<td>'+v+'</td>').join('')+'</tr>').join('')+'<tr><td><b>PRESSIONE SETTIMANALE</b></td>'+ts.map(v=>'<td><b>'+v+'</b></td>').join('')+'</tr></table>';download('WOP_matrice_'+year+'.xls','<html><meta charset="utf-8"><body>'+table+'</body></html>','application/vnd.ms-excel')}
   function exportComparison(){const ctx=analysisContext();if(!ctx.years.length){toast('Seleziona almeno un periodo da esportare');return}const current=ctx.years.at(-1),base=ctx.years.length>1?ctx.years[0]:null,heads=base?['Leva','Media '+current,'Media '+base,'Delta','Delta %']:['Leva','Media '+current],rows=cats.map(c=>{const x=categoryAverage(current,c,ctx.indices[current]);if(!base)return[c,x];const y=categoryAverage(base,c,ctx.indices[base]),d=x-y;return[c,x,y,d,y?d/y:0]});download('WOP_confronto_'+current+(base?'_vs_'+base:'')+'.csv','\ufeff'+[heads,...rows].map(r=>r.map(csvCell).join(';')).join('\n'),'text/csv;charset=utf-8')}
 
-  const APP_VERSION='v4.6';
+  const APP_VERSION='v4.7';
   const exportPageNames={dashboard:'Dashboard',calendar:'Calendario operativo',activities:'Registro attività',planning:'Pianificazione WOP',analysis:'Analisi e confronto',uco:'Metodo UCO',settings:'Regole e dati'};
   function activeViewKey(){return $('.view.active')?.id.replace('view-','')||'dashboard'}
   function selectedText(id){const el=$('#'+id);return el?.selectedOptions?.[0]?.textContent?.trim()||el?.value||'—'}
