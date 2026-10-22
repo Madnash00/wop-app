@@ -862,7 +862,7 @@ Stato: ${a.status||'—'}${a.notes?'\nNote: '+a.notes:''}`;for(let c=first;c<=la
       const wb=new ExcelJS.Workbook();wb.creator='WOP · Weekly Operational Pressure';wb.created=new Date();wb.properties={title:`WOP · ${exportPageNames[view]}`,subject:'Report operativo esportato con i filtri attivi'};
       const ws=reportOverviewSheet(wb,view);
       if(view==='dashboard'){
-        const kpis=$('#dashboardKpis .kpi').map(k=>({label:k.querySelector('.label')?.textContent||'',value:k.querySelector('.value')?.textContent||'',sub:k.querySelector('.sub')?.textContent||'',tone:k.style.getPropertyValue('--tone')||'#2374a5'}));
+        const kpis=$$('#dashboardKpis .kpi').map(k=>({label:k.querySelector('.label')?.textContent||'',value:k.querySelector('.value')?.textContent||'',sub:k.querySelector('.sub')?.textContent||'',tone:k.style.getPropertyValue('--tone')||'#2374a5'}));
         kpis.forEach((k,i)=>reportKpi(ws,1+i*3,8,k.label,k.value,k.sub,k.tone));
         reportSection(ws,13,1,8,'Andamento pressione settimanale');reportSection(ws,13,9,12,'Pressione per leva');
         await reportGraphic(wb,ws,$('#trendChart svg'),14);
@@ -873,7 +873,7 @@ Stato: ${a.status||'—'}${a.notes?'\nNote: '+a.notes:''}`;for(let c=first;c<=la
         reportMerge(ws,45,1,45,12,'Per il dettaglio di tutte le settimane e di ciascuna categoria consulta il foglio «Dati settimanali».',{fg:reportColors.muted,italic:true,size:9});
         reportDashboardDetails(wb);
       }else{
-        const cards=$('#compareCards .compare-card').map(c=>({label:c.querySelector('small')?.textContent||'',value:c.querySelector('b')?.textContent||'',sub:c.querySelector('span')?.textContent||'',deltaGood:!!c.querySelector('span.delta.good'),deltaBad:!!c.querySelector('span.delta.bad')}));
+        const cards=$$('#compareCards .compare-card').map(c=>({label:c.querySelector('small')?.textContent||'',value:c.querySelector('b')?.textContent||'',sub:c.querySelector('span')?.textContent||'',deltaGood:!!c.querySelector('span.delta.good'),deltaBad:!!c.querySelector('span.delta.bad')}));
         cards.forEach((k,i)=>reportKpi(ws,1+i*4,8,k.label,k.value,k.sub,i===1?'#f2994a':'#2374a5',k.deltaGood?reportColors.green:k.deltaBad?reportColors.accent:null,4));
         reportSection(ws,13,1,8,$('#compareChartTitle').textContent);reportSection(ws,13,9,12,'Variazione per leva');
         await reportGraphic(wb,ws,$('#compareChart svg'),14);
