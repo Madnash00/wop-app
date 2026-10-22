@@ -92,11 +92,11 @@ if(new URLSearchParams(location.search).get('mode')==='store-calendar')document.
       <button data-view="uco"><span class="ico">∑</span><span>Metodo UCO</span></button>
       <button data-view="settings"><span class="ico">⚙</span><span>Regole e dati</span></button>
     </nav>
-    <div class="side-foot"><b>Weekly Operational Pressure</b><br>Governare il carico. Proteggere l’execution.<br><br>Versione v5.4</div>
+    <div class="side-foot"><b>Weekly Operational Pressure</b><br>Governare il carico. Proteggere l’execution.<br><br>Versione v5.4.1</div>
   </aside>
   <main>
     <header class="topbar">
-      <div style="display:flex;align-items:center;gap:11px"><button class="mobile-menu" id="mobileMenu">☰</button><h1 id="topTitle">Dashboard</h1><span class="app-version">v5.4</span></div>
+      <div style="display:flex;align-items:center;gap:11px"><button class="mobile-menu" id="mobileMenu">☰</button><h1 id="topTitle">Dashboard</h1><span class="app-version">v5.4.1</span></div>
       <div class="top-actions"><span class="date-pill" id="todayLabel"></span><button class="btn" id="quickPrint">Crea PDF</button><button class="btn dark" id="quickExcel">Crea Excel</button></div>
     </header>
     <div class="content">
@@ -638,7 +638,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function exportYear(year){const d=state.scores[year],ts=totals(year);let table='<table border="1"><tr><th>Leva</th>'+d.weeks.map(w=>'<th>'+w+'</th>').join('')+'</tr>'+cats.map(c=>'<tr><td>'+c+'</td>'+d.categories[c].map(v=>'<td>'+v+'</td>').join('')+'</tr>').join('')+'<tr><td><b>PRESSIONE SETTIMANALE</b></td>'+ts.map(v=>'<td><b>'+v+'</b></td>').join('')+'</tr></table>';download('WOP_matrice_'+year+'.xls','<html><meta charset="utf-8"><body>'+table+'</body></html>','application/vnd.ms-excel')}
   function exportComparison(){const ctx=analysisContext();if(!ctx.years.length){toast('Seleziona almeno un periodo da esportare');return}const current=ctx.years.at(-1),base=ctx.years.length>1?ctx.years[0]:null,heads=base?['Leva','Media '+current,'Media '+base,'Delta','Delta %']:['Leva','Media '+current],rows=cats.map(c=>{const x=categoryAverage(current,c,ctx.indices[current]);if(!base)return[c,x];const y=categoryAverage(base,c,ctx.indices[base]),d=x-y;return[c,x,y,d,y?d/y:0]});download('WOP_confronto_'+current+(base?'_vs_'+base:'')+'.csv','\ufeff'+[heads,...rows].map(r=>r.map(csvCell).join(';')).join('\n'),'text/csv;charset=utf-8')}
 
-  const APP_VERSION='v5.4';
+  const APP_VERSION='v5.4.1';
   const exportPageNames={dashboard:'Dashboard',calendar:'Calendario operativo',activities:'Registro attività',planning:'Pianificazione WOP',analysis:'Analisi e confronto',uco:'Metodo UCO',settings:'Regole e dati'};
   function activeViewKey(){return $('.view.active')?.id.replace('view-','')||'dashboard'}
   function selectedText(id){const el=$('#'+id);return el?.selectedOptions?.[0]?.textContent?.trim()||el?.value||'—'}
@@ -793,7 +793,7 @@ Stato: ${a.status||'—'}${a.notes?'\nNote: '+a.notes:''}`;for(let c=first;c<=la
     });
   }
   function reportInsights(ws,startRow){
-    const nodes=$('#insights .callout').slice(0,3);
+    const nodes=[...document.querySelectorAll('#insights .callout')].slice(0,3);
     nodes.forEach((el,i)=>{
       const row=startRow+i*4,warn=el.classList.contains('warn'),accent=warn?reportColors.orange:reportColors.blue,bg=warn?'FFFFF6ED':'FFEEF7FC',title=el.querySelector('strong')?.textContent||'',copy=el.textContent.slice(title.length).trim();
       const top=reportMerge(ws,row,9,row,12,title,{bg,fg:reportColors.navy,bold:true,size:10});top.border={left:{style:'medium',color:{argb:accent}}};
@@ -862,7 +862,7 @@ Stato: ${a.status||'—'}${a.notes?'\nNote: '+a.notes:''}`;for(let c=first;c<=la
       const wb=new ExcelJS.Workbook();wb.creator='WOP · Weekly Operational Pressure';wb.created=new Date();wb.properties={title:`WOP · ${exportPageNames[view]}`,subject:'Report operativo esportato con i filtri attivi'};
       const ws=reportOverviewSheet(wb,view);
       if(view==='dashboard'){
-        const kpis=$$('#dashboardKpis .kpi').map(k=>({label:k.querySelector('.label')?.textContent||'',value:k.querySelector('.value')?.textContent||'',sub:k.querySelector('.sub')?.textContent||'',tone:k.style.getPropertyValue('--tone')||'#2374a5'}));
+        const kpis=[...document.querySelectorAll('#dashboardKpis .kpi')].map(k=>({label:k.querySelector('.label')?.textContent||'',value:k.querySelector('.value')?.textContent||'',sub:k.querySelector('.sub')?.textContent||'',tone:k.style.getPropertyValue('--tone')||'#2374a5'}));
         kpis.forEach((k,i)=>reportKpi(ws,1+i*3,8,k.label,k.value,k.sub,k.tone));
         reportSection(ws,13,1,8,'Andamento pressione settimanale');reportSection(ws,13,9,12,'Pressione per leva');
         await reportGraphic(wb,ws,$('#trendChart svg'),14);
