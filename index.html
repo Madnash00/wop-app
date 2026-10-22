@@ -92,16 +92,16 @@ if(new URLSearchParams(location.search).get('mode')==='store-calendar')document.
       <button data-view="uco"><span class="ico">∑</span><span>Metodo UCO</span></button>
       <button data-view="settings"><span class="ico">⚙</span><span>Regole e dati</span></button>
     </nav>
-    <div class="side-foot"><b>Weekly Operational Pressure</b><br>Governare il carico. Proteggere l’execution.<br><br>Versione v5.3</div>
+    <div class="side-foot"><b>Weekly Operational Pressure</b><br>Governare il carico. Proteggere l’execution.<br><br>Versione v5.4</div>
   </aside>
   <main>
     <header class="topbar">
-      <div style="display:flex;align-items:center;gap:11px"><button class="mobile-menu" id="mobileMenu">☰</button><h1 id="topTitle">Dashboard</h1><span class="app-version">v5.3</span></div>
+      <div style="display:flex;align-items:center;gap:11px"><button class="mobile-menu" id="mobileMenu">☰</button><h1 id="topTitle">Dashboard</h1><span class="app-version">v5.4</span></div>
       <div class="top-actions"><span class="date-pill" id="todayLabel"></span><button class="btn" id="quickPrint">Crea PDF</button><button class="btn dark" id="quickExcel">Crea Excel</button></div>
     </header>
     <div class="content">
       <section class="view active" id="view-dashboard">
-        <div class="page-head"><div><h2>Pressione operativa sotto controllo</h2><p>Vista dinamica del carico settimanale e dei principali driver.</p></div><div class="actions"><button class="btn" id="exportDashboard">Esporta Excel</button></div></div>
+        <div class="page-head"><div><h2>Pressione operativa sotto controllo</h2><p>Vista dinamica del carico settimanale e dei principali driver.</p></div><div class="actions"><button class="btn primary" id="exportDashboardFormatted" type="button">⬇ Crea Excel report</button><button class="btn" id="exportDashboard">Esporta Excel</button></div></div>
         <div class="filters"><div class="field"><label>Anno</label><select id="dashYear"><option>2026</option><option>2025</option></select></div><div class="field"><label>Periodo</label><select id="dashPeriod"><option value="all">Intero anno</option><option value="ytd" selected>Fino a oggi</option><option value="quarter">Trimestre corrente</option></select></div><div class="field grow"><label>Focus</label><select id="dashCategory"><option value="all">Pressione complessiva</option></select></div></div>
         <div class="grid kpis" id="dashboardKpis"></div>
         <div class="grid two-col">
@@ -133,7 +133,7 @@ if(new URLSearchParams(location.search).get('mode')==='store-calendar')document.
       </section>
 
       <section class="view" id="view-analysis">
-        <div class="page-head"><div><h2>Analisi e confronto</h2><p>Trend, distribuzione e driver della pressione operativa.</p></div><button class="btn" id="exportAnalysis">Esporta confronto</button></div>
+        <div class="page-head"><div><h2>Analisi e confronto</h2><p>Trend, distribuzione e driver della pressione operativa.</p></div><div class="actions"><button class="btn primary" id="exportAnalysisFormatted" type="button">⬇ Crea Excel report</button><button class="btn" id="exportAnalysis">Esporta confronto</button></div></div>
         <div class="filters analysis-filters"><div class="field"><label>Anno</label><div class="multi-filter" id="compareYearFilter"></div></div><div class="field"><label>Mese</label><div class="multi-filter" id="compareMonthFilter"></div></div><div class="field"><label>Settimana</label><div class="multi-filter" id="compareWeekFilter"></div></div></div>
         <div class="compare-grid" id="compareCards"></div>
         <div class="grid two-col"><div class="card panel"><div class="panel-head"><h3 id="compareChartTitle">Confronto settimanale 2026 vs 2025</h3></div><div class="chart" id="compareChart"><div class="chart-tip"></div></div></div><div class="card panel"><div class="panel-head"><h3>Variazione per leva</h3><small id="driverDeltaSubtitle">Media 2026 meno 2025</small></div><div class="heat-list" id="driverDeltas"></div></div></div>
@@ -393,6 +393,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     $('#turnoverImport').onchange=handleTurnoverImport;$('#turnoverYearClose').onclick=closeTurnoverYearModal;$('#turnoverYearCancel').onclick=closeTurnoverYearModal;$('#turnoverYearConfirm').onclick=confirmTurnoverImport;
     $('#restoreJson').onchange=restoreBackup;$('#resetAll').onclick=resetAll;$('#resetScores').onclick=resetScores;
     $('#exportActivities').onclick=exportActivities;$('#exportScores').onclick=()=>exportYear($('#planYear').value);$('#exportDashboard').onclick=()=>exportYear($('#dashYear').value);$('#exportAnalysis').onclick=exportComparison;
+    $('#exportDashboardFormatted').onclick=()=>exportPageStyledExcel('dashboard');$('#exportAnalysisFormatted').onclick=()=>exportPageStyledExcel('analysis');
     $('#quickPrint').onclick=createPdf;$('#quickExcel').onclick=createExcel;
     if(WOP_STORE_READ_ONLY){showView('calendar');initRemoteSync();return;}renderSettings();renderUcoMethod();renderDashboard();renderCalendar();renderActivities();renderPlanning();renderAnalysis();initRemoteSync();
   }
@@ -637,7 +638,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function exportYear(year){const d=state.scores[year],ts=totals(year);let table='<table border="1"><tr><th>Leva</th>'+d.weeks.map(w=>'<th>'+w+'</th>').join('')+'</tr>'+cats.map(c=>'<tr><td>'+c+'</td>'+d.categories[c].map(v=>'<td>'+v+'</td>').join('')+'</tr>').join('')+'<tr><td><b>PRESSIONE SETTIMANALE</b></td>'+ts.map(v=>'<td><b>'+v+'</b></td>').join('')+'</tr></table>';download('WOP_matrice_'+year+'.xls','<html><meta charset="utf-8"><body>'+table+'</body></html>','application/vnd.ms-excel')}
   function exportComparison(){const ctx=analysisContext();if(!ctx.years.length){toast('Seleziona almeno un periodo da esportare');return}const current=ctx.years.at(-1),base=ctx.years.length>1?ctx.years[0]:null,heads=base?['Leva','Media '+current,'Media '+base,'Delta','Delta %']:['Leva','Media '+current],rows=cats.map(c=>{const x=categoryAverage(current,c,ctx.indices[current]);if(!base)return[c,x];const y=categoryAverage(base,c,ctx.indices[base]),d=x-y;return[c,x,y,d,y?d/y:0]});download('WOP_confronto_'+current+(base?'_vs_'+base:'')+'.csv','\ufeff'+[heads,...rows].map(r=>r.map(csvCell).join(';')).join('\n'),'text/csv;charset=utf-8')}
 
-  const APP_VERSION='v5.3';
+  const APP_VERSION='v5.4';
   const exportPageNames={dashboard:'Dashboard',calendar:'Calendario operativo',activities:'Registro attività',planning:'Pianificazione WOP',analysis:'Analisi e confronto',uco:'Metodo UCO',settings:'Regole e dati'};
   function activeViewKey(){return $('.view.active')?.id.replace('view-','')||'dashboard'}
   function selectedText(id){const el=$('#'+id);return el?.selectedOptions?.[0]?.textContent?.trim()||el?.value||'—'}
@@ -721,6 +722,174 @@ Stato: ${a.status||'—'}${a.notes?'\nNote: '+a.notes:''}`;for(let c=first;c<=la
       else{const thresholdRows=[['Allerta',state.thresholds.alert,'Inizio stress medio'],['Criticità',state.thresholds.critical,'Inizio stress alto'],['Default',state.thresholds.default,'Stress non sostenibile']],scaleRows=cats.flatMap(c=>(state.categoryScales[c]||[]).map(x=>[c,x.value,x.description]));row=addExcelHeader(ws,view,8);row=addExcelTable(ws,'Soglie di pressione',['Soglia','Valore','Significato'],thresholdRows,row);row=addExcelTable(ws,'Scale valori per categoria',['Categoria','Valore','Descrizione'],scaleRows,row)}
       ws.views=ws.views?.length?ws.views:[{state:'frozen',ySplit:Math.min(8,row-1)}];const buffer=await workbook.xlsx.writeBuffer();downloadBlob(`WOP_${sheetNames[view].replaceAll(' ','_')}_${APP_VERSION}.xlsx`,new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));toast('File Excel creato')
     }catch(e){console.error(e);toast('Impossibile creare Excel: '+e.message)}finally{button.classList.remove('export-busy');button.textContent='Crea Excel'}}
+  // v5.4: report Excel dedicati, indipendenti dalle esportazioni già esistenti.
+  const reportColors={navy:'FF10283F',blue:'FF2374A5',accent:'FFE85D3F',ink:'FF152333',muted:'FF677787',line:'FFDCE3E8',ice:'FFEDF2F5',paper:'FFF7F9FA',white:'FFFFFFFF',green:'FF2F9E70',red:'FFD64545',orange:'FFF2994A'};
+  function reportSolid(argb){return{type:'pattern',pattern:'solid',fgColor:{argb}}}
+  function reportCell(ws,row,col,value,{bg=null,fg=reportColors.ink,bold=false,size=10,align='left',border=false,italic=false,wrap=true}={}){
+    const cell=ws.getCell(row,col);if(value!==undefined)cell.value=value;
+    if(bg)cell.fill=reportSolid(bg);
+    cell.font={name:'Aptos',size,bold,italic,color:{argb:fg}};
+    cell.alignment={horizontal:align,vertical:'middle',wrapText:wrap};
+    if(border)cell.border=excelGridBorder(typeof border==='string'?border:reportColors.line);
+    return cell;
+  }
+  function reportMerge(ws,r1,c1,r2,c2,value,opts={}){
+    if(r1!==r2||c1!==c2)ws.mergeCells(r1,c1,r2,c2);
+    const cell=reportCell(ws,r1,c1,value,opts);
+    if(opts.bg){for(let r=r1;r<=r2;r++)for(let c=c1;c<=c2;c++)ws.getCell(r,c).fill=reportSolid(opts.bg)}
+    return cell;
+  }
+  function reportSection(ws,row,c1,c2,title){reportMerge(ws,row,c1,row,c2,title.toUpperCase(),{bg:reportColors.ice,fg:reportColors.navy,bold:true,size:11});ws.getRow(row).height=25}
+  function reportKpi(ws,startCol,row,title,value,detail,tone,deltaTone=null,span=3){
+    const end=startCol+span-1,color=tone||reportColors.blue;
+    reportMerge(ws,row,startCol,row,end,String(title).toUpperCase(),{bg:reportColors.paper,fg:reportColors.muted,bold:true,size:9});
+    const val=reportMerge(ws,row+1,startCol,row+2,end,String(value),{bg:reportColors.paper,fg:reportColors.navy,bold:true,size:22});
+    val.border={top:{style:'medium',color:{argb:excelArgb(color.startsWith('#')?color:'#'+color.slice(-6))}}};
+    reportMerge(ws,row+3,startCol,row+3,end,String(detail||''),{bg:reportColors.paper,fg:deltaTone||reportColors.muted,size:9});
+    for(let r=row;r<=row+3;r++)ws.getRow(r).height=r===row+1||r===row+2?23:21;
+  }
+  function reportTableHeading(ws,row,blocks){blocks.forEach(b=>reportMerge(ws,row,b[0],row,b[1],b[2],{bg:reportColors.navy,fg:reportColors.white,bold:true,size:9,align:'center'}));ws.getRow(row).height=28}
+  function reportOverviewSheet(wb,view){
+    const ws=wb.addWorksheet(view==='dashboard'?'Dashboard':'Analisi e confronto',{properties:{tabColor:{argb:reportColors.accent}}});
+    for(let c=1;c<=12;c++)ws.getColumn(c).width=13;
+    ws.getColumn(1).width=15;ws.getColumn(2).width=14;ws.getColumn(9).width=17;ws.getColumn(10).width=16;ws.getColumn(11).width=15;ws.getColumn(12).width=14;
+    // Il titolo, i tre filtri e la formula metodologica replicano l'intestazione della pagina.
+    addExcelHeader(ws,view,12);
+    ws.views=[{state:'frozen',ySplit:7,showGridLines:false,zoomScale:85}];
+    ws.sheetProperties={pageSetUpPr:{fitToPage:true}};
+    ws.pageSetup={orientation:'landscape',paperSize:8,fitToPage:true,fitToWidth:1,fitToHeight:1,printArea:'A1:L45',margins:{left:.3,right:.3,top:.5,bottom:.5,header:.2,footer:.2}};
+    ws.headerFooter={oddHeader:`&LWOP&C${exportPageNames[view]}&R${APP_VERSION}`,oddFooter:'&LWeekly Operational Pressure&C&P / &N&R&D'};
+    return ws;
+  }
+  async function reportGraphic(wb,ws,svg,row=14){
+    if(!svg){reportMerge(ws,row,1,row+10,8,'Grafico non disponibile per la selezione corrente.',{fg:reportColors.muted,size:10,align:'center'});return}
+    // L'immagine è uno snapshot del grafico SVG effettivamente visualizzato sulla pagina.
+    const styled=svg.cloneNode(true);styled.querySelectorAll('.axis-label').forEach(t=>{t.setAttribute('fill','#728190');t.setAttribute('font-size','11');t.setAttribute('font-family','Arial,sans-serif')});
+    const png=await svgToPngData(styled,1000,330);
+    if(!png)return;
+    const id=wb.addImage({base64:png,extension:'png'});
+    ws.addImage(id,{tl:{col:.05,row:row-1},ext:{width:712,height:245}});
+  }
+  function reportHeatRows(ws,items,baseRow,hasDelta=false){
+    const max=Math.max(.1,...items.map(item=>Math.abs(+item.value||0)));
+    items.forEach((item,i)=>{
+      const r=baseRow+i,accent=item.color||'#2374a5',barCount=Math.round(Math.abs(+item.value||0)/max*8);
+      const name=reportMerge(ws,r,9,r,10,item.name,{bg:i%2?reportColors.paper:reportColors.white,bold:true,fg:reportColors.navy,size:9});
+      name.border={left:{style:'medium',color:{argb:excelArgb(accent)}}};
+      reportCell(ws,r,11,'■'.repeat(barCount),{fg:excelArgb(accent),size:10,align:'left'});
+      const v=reportCell(ws,r,12,+item.value||0,{bold:true,size:10,align:'right',fg:hasDelta?(+item.value<=0?reportColors.green:reportColors.accent):reportColors.ink});v.numFmt=hasDelta?'+0.0;-0.0;0.0':'0.0';
+      ws.getRow(r).height=25;
+    });
+  }
+  function reportDashRiskRows(ws,year,idx,firstRow){
+    const all=totals(year),d=state.scores[year],risks=idx.map(i=>({i,v:all[i]})).sort((a,b)=>b.v-a.v).slice(0,7);
+    reportTableHeading(ws,firstRow,[[1,2,'SETTIMANA'],[3,3,'WOP'],[4,5,'LIVELLO'],[6,8,'DRIVER PRINCIPALE']]);
+    risks.forEach(({i,v},j)=>{
+      const r=firstRow+j+1,bg=j%2?reportColors.paper:reportColors.white,driver=cats.map(cat=>[cat,+d.categories[cat][i]||0]).sort((a,b)=>b[1]-a[1])[0];
+      reportMerge(ws,r,1,r,2,d.weeks[i],{bg,bold:true,size:10});
+      const pressure=reportCell(ws,r,3,v,{bg:excelArgb(levelColor(v)),bold:true,align:'center',fg:excelTextColor(levelColor(v))});pressure.numFmt='0';
+      reportMerge(ws,r,4,r,5,level(v),{bg,bold:true,size:9,align:'center'});
+      reportMerge(ws,r,6,r,8,`${driver[0]} · ${driver[1]}`,{bg,size:9});ws.getRow(r).height=26;
+    });
+  }
+  function reportInsights(ws,startRow){
+    const nodes=$('#insights .callout').slice(0,3);
+    nodes.forEach((el,i)=>{
+      const row=startRow+i*4,warn=el.classList.contains('warn'),accent=warn?reportColors.orange:reportColors.blue,bg=warn?'FFFFF6ED':'FFEEF7FC',title=el.querySelector('strong')?.textContent||'',copy=el.textContent.slice(title.length).trim();
+      const top=reportMerge(ws,row,9,row,12,title,{bg,fg:reportColors.navy,bold:true,size:10});top.border={left:{style:'medium',color:{argb:accent}}};
+      const body=reportMerge(ws,row+1,9,row+3,12,copy,{bg,fg:reportColors.ink,size:9});body.border={left:{style:'medium',color:{argb:accent}}};
+      for(let r=row;r<=row+3;r++)ws.getRow(r).height=21;
+    });
+  }
+  function reportAnalysisCategoryTable(ws,data,headRow){
+    const {base,current,categoryRows}=data;
+    const headers=base?[[1,4,'LEVA'],[5,6,'MEDIA '+current],[7,8,'MEDIA '+base],[9,10,'DELTA'],[11,12,'DELTA %']]:[[1,4,'LEVA'],[5,8,'MEDIA '+current],[9,12,'LIVELLO MEDIO']];
+    reportTableHeading(ws,headRow,headers);
+    categoryRows.forEach(([name,x,y,d,p],i)=>{
+      const r=headRow+i+1,bg=i%2?reportColors.paper:reportColors.white,category=colors[name]||'#2374a5';
+      const c=reportMerge(ws,r,1,r,4,name,{bg,bold:true,size:9});c.border={left:{style:'medium',color:{argb:excelArgb(category)}}};
+      const cur=reportMerge(ws,r,5,r,base?6:8,x,{bg,align:'center',bold:true});cur.numFmt='0.0';
+      if(base){
+        const prev=reportMerge(ws,r,7,r,8,y,{bg,align:'center'});prev.numFmt='0.0';
+        const diff=reportMerge(ws,r,9,r,10,d,{bg,align:'center',bold:true,fg:d<=0?reportColors.green:reportColors.accent});diff.numFmt='+0.0;-0.0;0.0';
+        const pct=reportMerge(ws,r,11,r,12,p===null?'—':p,{bg,align:'center',fg:p===null?reportColors.muted:p<=0?reportColors.green:reportColors.accent,bold:true});if(p!==null)pct.numFmt='+0.0%;-0.0%;0.0%';
+      }else reportMerge(ws,r,9,r,12,level(x),{bg,align:'center',size:9});
+      ws.getRow(r).height=26;
+    });
+  }
+  function reportDetailTitle(ws,view,colCount){
+    const row=addExcelHeader(ws,view,colCount);
+    ws.views=[{state:'frozen',ySplit:row+1,showGridLines:false,zoomScale:85}];
+    return row;
+  }
+  function reportDashboardDetails(wb){
+    const ws=wb.addWorksheet('Dati settimanali',{properties:{tabColor:{argb:reportColors.blue}}}),d=dashboardExportData(),headers=['Settimana',...cats,'Pressione','Livello'];
+    const title=reportDetailTitle(ws,'dashboard',headers.length);
+    const headerRow=title+1;
+    addExcelTable(ws,'PRESSIONE OPERATIVA · DETTAGLIO SETTIMANALE',headers,d.rows,title);
+    ws.getColumn(1).width=15;
+    cats.forEach((cat,i)=>{
+      const col=i+2;ws.getColumn(col).width=cat==='Movimentazione Merce'?23:19;
+      const cell=ws.getCell(headerRow,col);cell.fill=reportSolid(excelArgb(colors[cat]));cell.font={bold:true,color:{argb:excelTextColor(colors[cat])},size:9};
+    });
+    ws.getColumn(9).width=16;ws.getColumn(10).width=19;
+    d.rows.forEach((r,i)=>{const line=headerRow+1+i,pressure=r[8],cell=ws.getCell(line,9),lvl=ws.getCell(line,10);cell.value={formula:`SUM(B${line}:H${line})`,result:pressure};cell.numFmt='0';cell.fill=reportSolid(excelArgb(levelColor(pressure)));cell.font={bold:true,color:{argb:excelTextColor(levelColor(pressure))}};cell.alignment={horizontal:'center'};lvl.fill=reportSolid(excelArgb(levelColor(pressure)));lvl.font={bold:true,color:{argb:excelTextColor(levelColor(pressure))}};lvl.alignment={horizontal:'center'};for(let c=2;c<=8;c++)ws.getCell(line,c).numFmt='0'});
+    if(d.rows.length)ws.autoFilter={from:{row:headerRow,column:1},to:{row:headerRow+d.rows.length,column:10}};
+    ws.pageSetup.printTitlesRow=`1:${headerRow}`;return ws;
+  }
+  function reportAnalysisDetails(wb){
+    const d=analysisExportData(),ws=wb.addWorksheet('Serie settimanali',{properties:{tabColor:{argb:reportColors.blue}}}),headers=d.base?['Settimana','Pressione '+d.current,'Pressione '+d.base,'Delta']:['Settimana','Pressione '+(d.current||'corrente')];
+    const row=reportDetailTitle(ws,'analysis',Math.max(8,headers.length)),hdr=row+1,rows=d.weeks.map(w=>d.base?w.slice(0,4):w.slice(0,2));
+    addExcelTable(ws,'ANDAMENTO SETTIMANALE · SERIE FILTRATE',headers,rows,row);
+    ws.getColumn(1).width=17;for(let i=2;i<=headers.length;i++)ws.getColumn(i).width=23;
+    rows.forEach((r,i)=>{const rr=hdr+i+1,cell=ws.getCell(rr,2),v=r[1];cell.fill=reportSolid(excelArgb(levelColor(v)));cell.font={bold:true,color:{argb:excelTextColor(levelColor(v))}};cell.alignment={horizontal:'center'};if(d.base){const prior=ws.getCell(rr,3);prior.fill=reportSolid(excelArgb(levelColor(r[2])));prior.font={bold:true,color:{argb:excelTextColor(levelColor(r[2]))}};prior.alignment={horizontal:'center'};const delta=ws.getCell(rr,4);delta.value={formula:`B${rr}-C${rr}`,result:r[3]};delta.numFmt='+0.0;-0.0;0.0';delta.font={bold:true,color:{argb:r[3]<=0?reportColors.green:reportColors.accent}}}});
+    if(rows.length)ws.autoFilter={from:{row:hdr,column:1},to:{row:hdr+rows.length,column:headers.length}};
+    let catRow=hdr+rows.length+4;
+    const catHeaders=d.base?['Leva','Media '+d.current,'Media '+d.base,'Delta','Delta %']:['Leva','Media '+(d.current||'corrente')];
+    const catsRows=d.categoryRows.map(r=>d.base?r.slice():r.slice(0,2));
+    const begin=catRow;addExcelTable(ws,'CONTRIBUTI MEDI DELLE CATEGORIE',catHeaders,catsRows,catRow);
+    catsRows.forEach((values,i)=>{const rr=begin+2+i,name=values[0],cell=ws.getCell(rr,1),category=colors[name]||'#2374a5';cell.fill=reportSolid(excelArgb(mixColor(category,'#ffffff',.86)));cell.font={bold:true,color:{argb:reportColors.navy}};if(d.base){const diff=ws.getCell(rr,4);diff.numFmt='+0.0;-0.0;0.0';diff.font={bold:true,color:{argb:values[3]<=0?reportColors.green:reportColors.accent}};const pct=ws.getCell(rr,5);if(values[4]!==null){pct.numFmt='+0.0%;-0.0%;0.0%';pct.font={bold:true,color:{argb:values[4]<=0?reportColors.green:reportColors.accent}}}}});
+    ws.getColumn(1).width=28;ws.getColumn(2).width=24;ws.getColumn(3).width=24;ws.getColumn(4).width=21;ws.getColumn(5).width=21;
+    ws.pageSetup.printTitlesRow=`1:${hdr}`;return ws;
+  }
+  async function exportPageStyledExcel(view){
+    const button=$('#'+(view==='dashboard'?'exportDashboardFormatted':'exportAnalysisFormatted'));
+    if(!window.ExcelJS){toast('Modulo Excel non disponibile');return}
+    if(view==='analysis'&&!analysisExportData().current){toast('Seleziona almeno un periodo da esportare');return}
+    const old=button.textContent;
+    button.classList.add('export-busy');button.textContent='Generazione Excel…';button.disabled=true;
+    try{
+      const wb=new ExcelJS.Workbook();wb.creator='WOP · Weekly Operational Pressure';wb.created=new Date();wb.properties={title:`WOP · ${exportPageNames[view]}`,subject:'Report operativo esportato con i filtri attivi'};
+      const ws=reportOverviewSheet(wb,view);
+      if(view==='dashboard'){
+        const kpis=$('#dashboardKpis .kpi').map(k=>({label:k.querySelector('.label')?.textContent||'',value:k.querySelector('.value')?.textContent||'',sub:k.querySelector('.sub')?.textContent||'',tone:k.style.getPropertyValue('--tone')||'#2374a5'}));
+        kpis.forEach((k,i)=>reportKpi(ws,1+i*3,8,k.label,k.value,k.sub,k.tone));
+        reportSection(ws,13,1,8,'Andamento pressione settimanale');reportSection(ws,13,9,12,'Pressione per leva');
+        await reportGraphic(wb,ws,$('#trendChart svg'),14);
+        const d=dashboardExportData(),avg=cats.map(cat=>({name:cat,value:mean(d.idx.map(i=>+d.data.categories[cat][i]||0)),color:colors[cat]}));
+        reportHeatRows(ws,avg,15);
+        reportSection(ws,30,1,8,'Settimane da presidiare');reportSection(ws,30,9,12,'Lettura manageriale');
+        reportDashRiskRows(ws,d.year,d.idx,32);reportInsights(ws,32);
+        reportMerge(ws,45,1,45,12,'Per il dettaglio di tutte le settimane e di ciascuna categoria consulta il foglio «Dati settimanali».',{fg:reportColors.muted,italic:true,size:9});
+        reportDashboardDetails(wb);
+      }else{
+        const cards=$('#compareCards .compare-card').map(c=>({label:c.querySelector('small')?.textContent||'',value:c.querySelector('b')?.textContent||'',sub:c.querySelector('span')?.textContent||'',deltaGood:!!c.querySelector('span.delta.good'),deltaBad:!!c.querySelector('span.delta.bad')}));
+        cards.forEach((k,i)=>reportKpi(ws,1+i*4,8,k.label,k.value,k.sub,i===1?'#f2994a':'#2374a5',k.deltaGood?reportColors.green:k.deltaBad?reportColors.accent:null,4));
+        reportSection(ws,13,1,8,$('#compareChartTitle').textContent);reportSection(ws,13,9,12,'Variazione per leva');
+        await reportGraphic(wb,ws,$('#compareChart svg'),14);
+        const d=analysisExportData(),items=d.categoryRows.map(([name,x,y,diff])=>({name,value:d.base?diff:x,color:d.base?(diff<=0?'#2f9e70':'#e85d3f'):'#2374a5'}));
+        reportHeatRows(ws,items,15,!!d.base);
+        reportSection(ws,30,1,12,'Dettaglio per categoria');reportAnalysisCategoryTable(ws,d,32);
+        reportMerge(ws,44,1,44,12,'Per i valori delle singole settimane e i confronti numerici consulta il foglio «Serie settimanali».',{fg:reportColors.muted,italic:true,size:9});
+        reportAnalysisDetails(wb);
+      }
+      const bytes=await wb.xlsx.writeBuffer(),name=view==='dashboard'?'Dashboard':'Analisi_e_Confronto';
+      downloadBlob(`WOP_${name}_Report_${APP_VERSION}.xlsx`,new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+      toast('Report Excel professionale creato');
+    }catch(error){console.error(error);toast('Esportazione Excel non riuscita: '+error.message)}
+    finally{button.classList.remove('export-busy');button.textContent=old;button.disabled=false}
+  }
+
   reconcileCalendarDerivedScores();
   if(!WOP_STORE_READ_ONLY)localStorage.setItem(KEY,JSON.stringify(state));
   init();
