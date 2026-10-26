@@ -244,6 +244,170 @@ if(new URLSearchParams(location.search).get('mode')==='store-calendar')document.
       .timeline-label{padding-inline:11px}
       .timeline-bar-title{font-size:11px}
     }
+  
+    /* v5.6 · Compact desktop density — presentation only; calculations and mobile untouched. */
+    @media screen and (min-width:1051px){
+      body{font-size:12px;line-height:1.35}
+      .app{grid-template-columns:clamp(182px,13.6vw,202px) minmax(0,1fr)}
+      .sidebar{padding:12px 9px 12px}
+      .brand{gap:8px;padding:2px 6px 12px}
+      .brand-mark{width:32px;height:32px;flex-basis:32px;font-size:14px;border-radius:8px}
+      .brand strong{font-size:14px}.brand small{font-size:9px}
+      .nav{padding-top:10px;gap:2px}
+      .nav button{min-height:31px;padding:6px 8px;border-radius:7px;gap:8px;font-size:11px;line-height:1.2}
+      .nav .ico{width:18px;flex-basis:18px;font-size:13px}
+      .side-foot{padding:10px 7px 2px;font-size:9px;line-height:1.4}
+      .topbar{height:50px;padding:0 17px}
+      .topbar h1{font-size:14px}
+      .top-actions{gap:6px}.date-pill{font-size:10px;padding:5px 8px}
+      .app-version{font-size:9px;padding:3px 5px}
+      .content{max-width:1750px;padding:14px 17px 30px}
+      .page-head{gap:12px;margin-bottom:11px}
+      .page-head h2{font-size:20px;line-height:1.2;margin-bottom:3px;letter-spacing:-.015em}
+      .page-head p{font-size:11px;line-height:1.35}
+      .btn{min-height:30px;padding:6px 10px;border-radius:7px;font-size:10.5px;line-height:1.25;gap:5px}
+      .btn.small{min-height:26px;padding:4px 7px;font-size:10px}
+      .btn.icon{width:30px;min-height:30px;padding:5px}
+      .actions{gap:6px}
+      .filters{gap:8px;padding:9px 11px;margin-bottom:11px;border-radius:10px}
+      .field{gap:4px;min-width:112px}.field.grow{min-width:185px}
+      .field label{font-size:9px;line-height:1.25;letter-spacing:.045em}
+      .field input,.field select,.field textarea{min-height:31px;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.3}
+      .field textarea{min-height:66px}
+      .grid{gap:10px}.card{border-radius:11px}
+      .kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:10px}
+      .kpi{padding:10px 12px}
+      .kpi .label{font-size:9px;line-height:1.3}
+      .kpi .value{font-size:clamp(21px,1.6vw,26px);line-height:1.1;margin:5px 0 2px}
+      .kpi .sub{font-size:9px;line-height:1.3}
+      .two-col{grid-template-columns:minmax(0,1.75fr) minmax(250px,.9fr);gap:10px}
+      .panel{padding:11px 12px}
+      .panel-head{gap:7px;margin-bottom:9px}
+      .panel-head h3{font-size:12.5px;line-height:1.25}.panel-head small{font-size:9px;line-height:1.3}
+      .chart{height:clamp(208px,23vh,252px)}
+      .axis-label{font-size:10px}.legend-inline{gap:8px;font-size:9px}
+      .heat-list{gap:7px}.heat-row{grid-template-columns:clamp(69px,6.6vw,94px) minmax(0,1fr) 32px;gap:7px}
+      .heat-row b{font-size:10px;line-height:1.2}.bar{height:7px}
+      .callout{padding:8px 10px;font-size:10.5px;line-height:1.4;margin-bottom:6px}
+      .table-wrap{border-radius:8px}
+      .data-table{font-size:10.5px}.data-table th{font-size:9px;padding:7px 8px;line-height:1.2}
+      .data-table td{padding:7px 8px;line-height:1.3}
+      .tag{padding:3px 6px;font-size:9px}.empty{padding:22px}
+      .compare-grid{gap:9px;margin-bottom:10px}
+      .compare-card{padding:10px 12px}.compare-card small{font-size:9px}.compare-card b{font-size:21px;margin-top:3px}
+      #view-planning .page-head{margin-bottom:9px}
+      #view-planning .planning-filters{margin-bottom:8px}
+      .planning-filters .field.grow{min-width:250px}
+      .planning-method-note{font-size:10px;line-height:1.3;padding:4px 0}
+      .planning-week-editor{padding:9px 10px;margin-bottom:9px}
+      .planning-week-editor-head{gap:7px;margin-bottom:7px}
+      .planning-week-editor-title h3{font-size:12px}.planning-week-editor-title small{font-size:9px}
+      .planning-week-meta{gap:5px}.planning-week-total{padding:4px 6px;font-size:9px}
+      .planning-week-total b{min-width:23px;height:19px;font-size:10px}
+      .planning-category-grid{grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+      .planning-category-card{padding:7px 7px;border-radius:7px}
+      .planning-category-card label{min-height:24px;margin-bottom:4px;font-size:9px;line-height:1.22}
+      .planning-category-card select{min-height:28px;padding:5px 5px;border-radius:6px;font-size:9.5px}
+      .planning-force-wrap{gap:3px}.planning-auto-reset{min-height:24px;padding:4px;font-size:8px}
+      .planning-override-mark{font-size:8px;padding:2px 4px;margin-top:3px}
+      .planning-matrix-panel{padding-top:9px}.planning-matrix-head h3{font-size:12px}.planning-matrix-head small{font-size:9px}
+      .score-matrix th.week-head,.score-cell{min-width:182px}
+      .score-matrix th:first-child,.score-matrix td:first-child{min-width:135px}
+      .score-matrix select{width:157px;max-width:100%;min-height:28px;padding:5px;font-size:10px}
+      .week-lock-btn{width:23px;height:23px;font-size:10px}.pressure-dot{width:29px;height:22px;font-size:10px}
+      .calendar-shell{padding:9px}
+      .calendar-toolbar{margin-bottom:6px}.calendar-title{font-size:15px}
+      .timeline-help{gap:9px;font-size:9px;line-height:1.25;margin-bottom:6px}
+      .timeline-scroll{max-height:calc(100vh - 198px);min-height:340px;border-radius:8px}
+      .timeline{--label-w:168px;--day-w:28px}
+      .timeline-label{padding:4px 7px}
+      .timeline-week-header,.timeline-week-track,.timeline-week-cell{height:22px;min-height:22px}
+      .timeline-week-header .timeline-label{height:22px;font-size:8.5px}.timeline-week-cell{font-size:9px}
+      .timeline-header{top:22px;min-height:37px}
+      .timeline-header .timeline-label{height:37px;font-size:8.5px}
+      .timeline-header .timeline-day{height:37px;font-size:8px;line-height:1.15}
+      .timeline-category-row{min-height:38px}.timeline-category-row .timeline-track{min-height:38px}
+      .category-meta{gap:2px}.category-meta b{font-size:10px;line-height:1.12}
+      .category-meta small{font-size:8.5px;line-height:1.1}
+      .timeline-bar{top:8px;height:22px;border-radius:5px}
+      .timeline-bar-title{font-size:9.5px;padding:0 5px}
+      .bar-lock{width:14px;height:14px;flex-basis:14px;font-size:7px}
+      .resize-handle{width:6px;flex-basis:6px}
+      .timeline-pressure-row,.timeline-pressure-track{height:25px;min-height:25px}
+      .timeline-pressure-row .timeline-label{height:25px}
+      .timeline-pressure-week{height:25px;padding:3px 0}
+      .timeline-pressure-block{height:19px;font-size:8.5px;gap:4px}
+      .timeline-pressure-block b{font-size:10px}
+      .timeline-finance-row,.timeline-finance-track,.timeline-finance-week{height:22px;min-height:22px}
+      .timeline-finance-row .timeline-label{height:22px}.timeline-finance-row .category-meta b{font-size:9px}
+      .timeline-finance-week{font-size:9px}
+      .multi-filter{min-width:138px}.multi-menu{width:232px;max-height:290px}
+      .multi-option{font-size:10.5px;padding:6px}
+      .analysis-filters .multi-filter{min-width:160px}
+      .calendar-summary{font-size:9.5px}
+      #view-calendar .calendar-filters{gap:7px;padding:8px 10px;margin-bottom:7px}
+      .modal{width:min(745px,calc(100vw - 48px));max-height:calc(100vh - 28px);border-radius:11px}
+      .modal-head{padding:11px 15px}.modal-head h3{font-size:14px}
+      .modal-body{padding:12px 15px}.modal-foot{padding:10px 15px}
+      .form-grid{gap:9px}.delivery-fields-row{gap:9px}
+      .field-help{font-size:9.5px;line-height:1.35}
+      .scientific-fields{padding:9px}.scientific-fields h4{font-size:11px;margin-bottom:8px}
+      .scientific-grid{gap:8px}.scientific-preview{font-size:10px;padding:7px 9px;line-height:1.35}
+      .perimeter-row{grid-template-columns:minmax(0,1fr) 165px;gap:8px}
+      .perimeter-impact{padding:7px 9px}.perimeter-impact b{font-size:14px}.perimeter-impact span{font-size:9px}
+      .pressure-week-grid{grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:6px}
+      .pressure-week-control{grid-template-columns:59px minmax(0,1fr);padding:6px;gap:6px}
+      .pressure-week-control b{font-size:10px}
+      .promo-curve-card,.crm-curve-card{padding:9px}
+      .promo-curve-head{margin-bottom:5px}.promo-curve-head b{font-size:11px}.promo-curve-head small{font-size:9.5px}
+      .promo-curve-svg{height:215px}
+      .promo-curve-week-grid,.crm-curve-week-grid{grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px}
+      .promo-curve-week{padding:6px 7px;font-size:9.5px;line-height:1.32}
+      .promo-curve-week b{font-size:10px}.promo-curve-help{font-size:9px;margin-top:5px}
+      .curve-series-controls{gap:6px;margin-bottom:6px}
+      .curve-series-row{padding:6px 8px;font-size:10px}.curve-series-row small,.curve-toggle{font-size:9px}
+      .uco-method-grid{gap:10px}.uco-method-card{padding:12px}
+      .uco-method-card h3{font-size:13px}.uco-method-card .uco-sub{font-size:10px;margin-bottom:8px}
+      .uco-method-intro{padding:11px 13px;gap:10px;margin-bottom:10px}
+      .uco-method-intro b{font-size:12px}.uco-method-intro span{font-size:10px}
+      .uco-formula{padding:8px 10px;font-size:10px}
+      .uco-edit-grid,.uco-edit-grid.three{gap:8px}
+      .uco-readonly{font-size:10px;line-height:1.4;padding:8px}
+      .uco-pressure-level{padding:7px}.uco-pressure-level b{font-size:14px;margin-bottom:3px}
+      .uco-pressure-level span{font-size:9.5px}
+      .settings-grid{gap:10px}.legend-card,.scale-editor-card{padding:12px}
+      .legend-card h3{font-size:13px}.score-rule{padding:6px 0}.score-chip{height:25px}
+      .scale-editor-grid{gap:8px}.scale-row{padding:7px 8px;grid-template-columns:15px 68px minmax(0,1fr) 28px;gap:6px}
+      .scale-row input{font-size:10.5px}
+    }
+    @media screen and (min-width:1051px) and (max-width:1199px){
+      .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .two-col{grid-template-columns:minmax(0,1fr)}
+      .planning-category-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+      .calendar-summary{width:auto;order:0}
+      .modal{width:min(710px,calc(100vw - 36px))}
+      .uco-pressure-scale{grid-template-columns:repeat(3,minmax(0,1fr))}
+    }
+    @media screen and (min-width:1200px) and (max-width:1299px){
+      .two-col{grid-template-columns:minmax(0,1fr)}
+      .planning-category-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+      .calendar-summary{width:auto;order:0}
+      .uco-pressure-scale{grid-template-columns:repeat(4,minmax(0,1fr))}
+    }
+    @media screen and (min-width:1300px) and (max-width:1399px){
+      .planning-category-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
+      .planning-category-card{padding:6px 5px}
+      .planning-category-card label{font-size:8.5px}
+      .planning-auto-reset{font-size:7.5px;padding-inline:3px}
+    }
+    @media screen and (min-width:1800px){
+      .chart{height:252px}
+      .kpi{padding:11px 14px}
+      .panel{padding:12px 14px}
+      .timeline{--label-w:177px;--day-w:29px}
+      .timeline-label{padding-inline:7px}
+      .timeline-bar-title{font-size:9.8px}
+    }
   </style>
 </head>
 <body>
@@ -259,11 +423,11 @@ if(new URLSearchParams(location.search).get('mode')==='store-calendar')document.
       <button data-view="uco"><span class="ico">∑</span><span>Metodo UCO</span></button>
       <button data-view="settings"><span class="ico">⚙</span><span>Regole e dati</span></button>
     </nav>
-    <div class="side-foot"><b>Weekly Operational Pressure</b><br>Governare il carico. Proteggere l’execution.<br><br>Versione v5.5</div>
+    <div class="side-foot"><b>Weekly Operational Pressure</b><br>Governare il carico. Proteggere l’execution.<br><br>Versione v5.6</div>
   </aside>
   <main>
     <header class="topbar">
-      <div style="display:flex;align-items:center;gap:11px"><button class="mobile-menu" id="mobileMenu">☰</button><h1 id="topTitle">Dashboard</h1><span class="app-version">v5.5</span></div>
+      <div style="display:flex;align-items:center;gap:11px"><button class="mobile-menu" id="mobileMenu">☰</button><h1 id="topTitle">Dashboard</h1><span class="app-version">v5.6</span></div>
       <div class="top-actions"><span class="date-pill" id="todayLabel"></span><button class="btn" id="quickPrint">Crea PDF</button><button class="btn dark" id="quickExcel">Crea Excel</button></div>
     </header>
     <div class="content">
@@ -805,7 +969,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function exportYear(year){const d=state.scores[year],ts=totals(year);let table='<table border="1"><tr><th>Leva</th>'+d.weeks.map(w=>'<th>'+w+'</th>').join('')+'</tr>'+cats.map(c=>'<tr><td>'+c+'</td>'+d.categories[c].map(v=>'<td>'+v+'</td>').join('')+'</tr>').join('')+'<tr><td><b>PRESSIONE SETTIMANALE</b></td>'+ts.map(v=>'<td><b>'+v+'</b></td>').join('')+'</tr></table>';download('WOP_matrice_'+year+'.xls','<html><meta charset="utf-8"><body>'+table+'</body></html>','application/vnd.ms-excel')}
   function exportComparison(){const ctx=analysisContext();if(!ctx.years.length){toast('Seleziona almeno un periodo da esportare');return}const current=ctx.years.at(-1),base=ctx.years.length>1?ctx.years[0]:null,heads=base?['Leva','Media '+current,'Media '+base,'Delta','Delta %']:['Leva','Media '+current],rows=cats.map(c=>{const x=categoryAverage(current,c,ctx.indices[current]);if(!base)return[c,x];const y=categoryAverage(base,c,ctx.indices[base]),d=x-y;return[c,x,y,d,y?d/y:0]});download('WOP_confronto_'+current+(base?'_vs_'+base:'')+'.csv','\ufeff'+[heads,...rows].map(r=>r.map(csvCell).join(';')).join('\n'),'text/csv;charset=utf-8')}
 
-  const APP_VERSION='v5.5';
+  const APP_VERSION='v5.6';
   const exportPageNames={dashboard:'Dashboard',calendar:'Calendario operativo',activities:'Registro attività',planning:'Pianificazione WOP',analysis:'Analisi e confronto',uco:'Metodo UCO',settings:'Regole e dati'};
   function activeViewKey(){return $('.view.active')?.id.replace('view-','')||'dashboard'}
   function selectedText(id){const el=$('#'+id);return el?.selectedOptions?.[0]?.textContent?.trim()||el?.value||'—'}
