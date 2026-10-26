@@ -408,7 +408,44 @@ if(new URLSearchParams(location.search).get('mode')==='store-calendar')document.
       .timeline-label{padding-inline:7px}
       .timeline-bar-title{font-size:9.8px}
     }
-  </style>
+/* v5.7 · Desktop calendar viewport: denser schedule, no loss of information. */
+    @media screen and (min-width:1051px){
+      #view-calendar .calendar-filters{padding:6px 8px;gap:6px;margin-bottom:5px}
+      #view-calendar .calendar-filters .btn{min-height:27px}
+      #view-calendar .calendar-shell{padding:7px}
+      #view-calendar .calendar-toolbar{margin-bottom:3px}
+      #view-calendar .calendar-title{font-size:13px}
+      #view-calendar .timeline-help{margin-bottom:4px;gap:8px;font-size:8.5px;line-height:1.2}
+      #view-calendar .timeline-scroll{height:calc(100dvh - 160px);max-height:calc(100dvh - 160px);min-height:280px;overflow:auto}
+      #view-calendar .timeline{--label-w:148px;--day-w:24px}
+      #view-calendar .timeline-label{padding:3px 5px}
+      #view-calendar .timeline-week-header,#view-calendar .timeline-week-track,#view-calendar .timeline-week-cell{height:19px;min-height:19px}
+      #view-calendar .timeline-week-header .timeline-label{height:19px;font-size:8px}
+      #view-calendar .timeline-week-cell{font-size:8px}
+      #view-calendar .timeline-header{top:19px;min-height:33px}
+      #view-calendar .timeline-header .timeline-label{height:33px;font-size:8px}
+      #view-calendar .timeline-header .timeline-day{height:33px;font-size:7.5px;line-height:1.12}
+      #view-calendar .timeline-category-row,#view-calendar .timeline-category-row .timeline-track{min-height:0}
+      #view-calendar .category-meta b{font-size:9px;line-height:1.12}
+      #view-calendar .category-meta small{font-size:7.5px;line-height:1.1}
+      #view-calendar .timeline-bar{height:20px;border-radius:4px}
+      #view-calendar .timeline-bar-title{font-size:9px;padding:0 4px}
+      #view-calendar .bar-lock{width:13px;height:13px;flex-basis:13px;font-size:6px}
+      #view-calendar .timeline-pressure-row,#view-calendar .timeline-pressure-track{height:23px;min-height:23px}
+      #view-calendar .timeline-pressure-row .timeline-label{height:23px}
+      #view-calendar .timeline-pressure-week{height:23px;padding:3px 0}
+      #view-calendar .timeline-pressure-block{height:17px;font-size:7.5px}
+      #view-calendar .timeline-pressure-block b{font-size:9px}
+      #view-calendar .timeline-finance-row,#view-calendar .timeline-finance-track,#view-calendar .timeline-finance-week{height:20px;min-height:20px}
+      #view-calendar .timeline-finance-row .timeline-label{height:20px}
+      #view-calendar .timeline-finance-week{font-size:8px}
+      #view-dashboard .chart,#view-analysis .chart{min-height:215px}
+      #view-dashboard .chart svg,#view-analysis .chart svg{width:100%;height:100%;display:block;overflow:hidden}
+      #view-dashboard .chart-tip,#view-analysis .chart-tip{max-width:min(265px,calc(100% - 16px));font-size:11px;line-height:1.45;padding:9px 11px;border:1px solid rgba(255,255,255,.14)}
+    }
+    @media screen and (min-width:1400px){#view-calendar .timeline{--label-w:154px;--day-w:25px}}
+    @media screen and (min-width:1800px){#view-calendar .timeline{--label-w:165px;--day-w:27px}}
+    </style>
 </head>
 <body>
 <div class="app">
@@ -423,11 +460,11 @@ if(new URLSearchParams(location.search).get('mode')==='store-calendar')document.
       <button data-view="uco"><span class="ico">∑</span><span>Metodo UCO</span></button>
       <button data-view="settings"><span class="ico">⚙</span><span>Regole e dati</span></button>
     </nav>
-    <div class="side-foot"><b>Weekly Operational Pressure</b><br>Governare il carico. Proteggere l’execution.<br><br>Versione v5.6</div>
+    <div class="side-foot"><b>Weekly Operational Pressure</b><br>Governare il carico. Proteggere l’execution.<br><br>Versione v5.7</div>
   </aside>
   <main>
     <header class="topbar">
-      <div style="display:flex;align-items:center;gap:11px"><button class="mobile-menu" id="mobileMenu">☰</button><h1 id="topTitle">Dashboard</h1><span class="app-version">v5.6</span></div>
+      <div style="display:flex;align-items:center;gap:11px"><button class="mobile-menu" id="mobileMenu">☰</button><h1 id="topTitle">Dashboard</h1><span class="app-version">v5.7</span></div>
       <div class="top-actions"><span class="date-pill" id="todayLabel"></span><button class="btn" id="quickPrint">Crea PDF</button><button class="btn dark" id="quickExcel">Crea Excel</button></div>
     </header>
     <div class="content">
@@ -742,12 +779,61 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function drawLineChart(host,labels,values,lines=[],second=null,pressureColors=false){
-    const W=900,H=270,p={l:42,r:18,t:15,b:32},max=Math.max(32,...values,...(second?.values||[]),...lines.map(x=>x.value)),min=0,x=i=>p.l+i*(W-p.l-p.r)/Math.max(labels.length-1,1),y=v=>p.t+(max-v)*(H-p.t-p.b)/(max-min);let svg=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
-    for(let n=0;n<=max;n+=5)svg+=`<line x1="${p.l}" y1="${y(n)}" x2="${W-p.r}" y2="${y(n)}" stroke="#e7ecef"/><text x="${p.l-8}" y="${y(n)+3}" text-anchor="end" class="axis-label">${n}</text>`;
-    lines.forEach(l=>svg+=`<line x1="${p.l}" y1="${y(l.value)}" x2="${W-p.r}" y2="${y(l.value)}" stroke="${l.color}" stroke-dasharray="5 5" stroke-width="1.4"/>`);
-    const path=values.map((v,i)=>(i?'L':'M')+x(i)+','+y(v)).join(' ');svg+=`<path d="${path}" fill="none" stroke="#2374a5" stroke-width="3" vector-effect="non-scaling-stroke"/>`;
-    if(second){const p2=second.values.map((v,i)=>(i?'L':'M')+x(i)+','+y(v)).join(' ');svg+=`<path d="${p2}" fill="none" stroke="${second.color||'#e85d3f'}" stroke-width="3" stroke-dasharray="7 4" vector-effect="non-scaling-stroke"/>`}
-    values.forEach((v,i)=>{if(i%Math.max(1,Math.ceil(values.length/13))===0)svg+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" class="axis-label">${labels[i]}</text>`;svg+=`<circle cx="${x(i)}" cy="${y(v)}" r="5" fill="${pressureColors?levelColor(v):'transparent'}" stroke="${pressureColors?'#fff':'transparent'}" stroke-width="${pressureColors?1.5:0}" data-i="${i}"/>`});svg+='</svg>';host.querySelector('svg')?.remove();host.insertAdjacentHTML('afterbegin',svg);const tip=host.querySelector('.chart-tip');host.querySelectorAll('circle').forEach(c=>{c.onmouseenter=e=>{const i=+c.dataset.i;tip.style.display='block';tip.innerHTML=`<b>${labels[i]}</b><br>${fmt(values[i])}${second?`<br>Confronto: ${fmt(second.values[i])}`:''}`};c.onmousemove=e=>{const r=host.getBoundingClientRect();tip.style.left=(e.clientX-r.left+12)+'px';tip.style.top=(e.clientY-r.top-12)+'px'};c.onmouseleave=()=>tip.style.display='none'})
+    // Renders in the actual desktop panel aspect ratio: fonts stay undistorted and circles remain round.
+    const W=Math.max(420,Math.round(host.clientWidth||900)),H=Math.max(205,Math.round(host.clientHeight||270));
+    const p={l:42,r:18,t:second?34:20,b:33};
+    const series=[...values,...(second?.values||[]),...lines.map(x=>x.value)].filter(Number.isFinite);
+    const dataMax=Math.max(1,...series),max=Math.max(10,Math.ceil(dataMax*1.1/5)*5),plotW=Math.max(1,W-p.l-p.r),plotH=Math.max(1,H-p.t-p.b);
+    const x=i=>p.l+i*plotW/Math.max(labels.length-1,1),y=v=>p.t+(max-v)*plotH/max;
+    const labelStep=Math.max(1,Math.ceil(labels.length/Math.max(3,Math.floor(plotW/58))));
+    const ticks=Math.max(5,Math.ceil(max/5)),tickEvery=Math.ceil(ticks/6)*5;
+    const primary=host.id==='compareChart'?'#2374a5':'#2374a5',secondary=second?.color||'#e85d3f';
+    const baseTitle=host.id==='compareChart'?($('#compareChartTitle')?.textContent||''):'';
+    const years=baseTitle.match(/(20\d{2}).*?(20\d{2})/),oneYear=baseTitle.match(/(20\d{2})/);
+    const primaryLabel=host.id==='trendChart'?($('#dashCategory')?.selectedOptions?.[0]?.textContent||'Pressione'):(years?.[1]||oneYear?.[1]||'Periodo corrente');
+    const secondaryLabel=years?.[2]||'Periodo confronto';
+    const fmtChart=n=>Number.isFinite(+n)?fmt(+n,1):'—';
+    const escapeChart=v=>esc(String(v));
+    let svg=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Andamento della pressione operativa, passa il cursore per i dettagli">`;
+    for(let n=0;n<=max;n+=tickEvery){svg+=`<line x1="${p.l}" y1="${y(n)}" x2="${W-p.r}" y2="${y(n)}" stroke="#e5ebef" stroke-width="1"/><text x="${p.l-9}" y="${y(n)+3.5}" text-anchor="end" class="axis-label">${n}</text>`}
+    lines.forEach(l=>{svg+=`<line x1="${p.l}" y1="${y(l.value)}" x2="${W-p.r}" y2="${y(l.value)}" stroke="${l.color}" stroke-dasharray="5 5" stroke-width="1.25"/>`});
+    const path=values.map((v,i)=>(i?'L':'M')+x(i)+','+y(v)).join(' ');
+    svg+=`<path d="${path}" fill="none" stroke="${primary}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+    if(second){const line=second.values.map((v,i)=>(i?'L':'M')+x(i)+','+y(v)).join(' ');svg+=`<path d="${line}" fill="none" stroke="${secondary}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4" vector-effect="non-scaling-stroke"/>`;
+      svg+=`<line x1="${p.l+8}" y1="12" x2="${p.l+24}" y2="12" stroke="${primary}" stroke-width="2.5"/><text x="${p.l+28}" y="15.5" class="axis-label">${escapeChart(primaryLabel)}</text><line x1="${p.l+102}" y1="12" x2="${p.l+118}" y2="12" stroke="${secondary}" stroke-width="2.5" stroke-dasharray="5 3"/><text x="${p.l+122}" y="15.5" class="axis-label">${escapeChart(secondaryLabel)}</text>`;
+    }
+    values.forEach((v,i)=>{
+      if(i%labelStep===0||i===labels.length-1&&i%labelStep>1)svg+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" class="axis-label">${escapeChart(labels[i])}</text>`;
+      const fill=pressureColors?levelColor(v):primary;
+      svg+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.7" fill="${fill}" stroke="#fff" stroke-width="1.1" data-i="${i}" tabindex="0" role="button" aria-label="${escapeChart(labels[i])}: ${fmtChart(v)}"/>`;
+      if(second)svg+=`<circle cx="${x(i)}" cy="${y(second.values[i])}" r="3.4" fill="#fff" stroke="${secondary}" stroke-width="1.65" pointer-events="none"/>`;
+    });
+    svg+=`<line data-hover-guide x1="0" x2="0" y1="${p.t}" y2="${H-p.b}" stroke="#788b98" stroke-width="1" stroke-dasharray="3 4" pointer-events="none" visibility="hidden"/></svg>`;
+    host.querySelector('svg')?.remove();host.insertAdjacentHTML('afterbegin',svg);
+    const element=host.querySelector('svg'),tip=host.querySelector('.chart-tip');
+    let active=-1;
+    function reveal(i,left,top){
+      if(!tip||i<0||i>=values.length)return;
+      if(i!==active){active=i;const v=values[i],levelTxt=host.id==='trendChart'?`<div>Livello: <b>${escapeChart(level(v))}</b></div>`:'';
+        const comparison=second?`<div style="margin-top:3px"><span style="color:${secondary}">●</span> ${escapeChart(secondaryLabel)}: <b>${fmtChart(second.values[i])}</b></div><div>Delta: <b>${(v-second.values[i]>0?'+':'')+fmtChart(v-second.values[i])}</b></div>`:'';
+        const levels=host.id==='trendChart'?`<div style="margin-top:3px;color:#c8d6df">Allerta ${fmtChart(state.thresholds.alert)} · Criticità ${fmtChart(state.thresholds.critical)}</div>`:'';
+        tip.innerHTML=`<b>${escapeChart(labels[i])}</b><div style="margin-top:3px"><span style="color:${primary}">●</span> ${escapeChart(primaryLabel)}: <b>${fmtChart(v)}</b></div>${levelTxt}${comparison}${levels}`;
+        const guide=element.querySelector('[data-hover-guide]');guide?.setAttribute('x1',x(i));guide?.setAttribute('x2',x(i));guide?.setAttribute('visibility','visible');
+        element.querySelectorAll('circle[data-i]').forEach(c=>{const isActive=+c.dataset.i===i;c.setAttribute('r',isActive?'5.5':'3.7');c.setAttribute('stroke-width',isActive?'2':'1.1')});
+      }
+      tip.style.display='block';const maxLeft=Math.max(6,host.clientWidth-tip.offsetWidth-6),maxTop=Math.max(6,host.clientHeight-tip.offsetHeight-6);
+      tip.style.left=Math.max(6,Math.min(maxLeft,left+12))+'px';tip.style.top=Math.max(6,Math.min(maxTop,top-tip.offsetHeight-9))+'px';
+    }
+    function hide(){active=-1;if(tip)tip.style.display='none';element.querySelector('[data-hover-guide]')?.setAttribute('visibility','hidden');element.querySelectorAll('circle[data-i]').forEach(c=>{c.setAttribute('r','3.7');c.setAttribute('stroke-width','1.1')})}
+    element.onpointermove=e=>{const rect=element.getBoundingClientRect();if(!rect.width)return;const virtualX=(e.clientX-rect.left)*W/rect.width;const i=Math.max(0,Math.min(values.length-1,Math.round((virtualX-p.l)*(Math.max(labels.length-1,1))/plotW)));const frame=host.getBoundingClientRect();reveal(i,e.clientX-frame.left,e.clientY-frame.top)};
+    element.onpointerleave=hide;
+    element.querySelectorAll('circle[data-i]').forEach(c=>{c.onfocus=()=>{const i=+c.dataset.i,frame=host.getBoundingClientRect(),r=c.getBoundingClientRect();reveal(i,r.left-frame.left,r.top-frame.top)};c.onblur=hide});
+    host._wopChartArgs={labels,values,lines,second,pressureColors};
+    if(!host._wopChartObserver&&typeof ResizeObserver!=='undefined'){
+      let lastW=W,lastH=H;
+      host._wopChartObserver=new ResizeObserver(()=>{const nw=host.clientWidth,nh=host.clientHeight;if(nw<200||nh<150||Math.abs(nw-lastW)<2&&Math.abs(nh-lastH)<2)return;lastW=nw;lastH=nh;if(host._wopChartPending)return;host._wopChartPending=true;requestAnimationFrame(()=>{host._wopChartPending=false;const a=host._wopChartArgs;if(a)drawLineChart(host,a.labels,a.values,a.lines,a.second,a.pressureColors)})});
+      host._wopChartObserver.observe(host);
+    }
   }
 
   function calendarYears(){return [...new Set([...Object.keys(state.scores),...state.activities.map(a=>a.date.slice(0,4)),String(new Date().getFullYear())])].sort()}
@@ -762,7 +848,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function dayCellsFromDates(dates,category){const today=isoDate(new Date());return dates.map(iso=>{const d=dateObj(iso),weekend=d.getDay()===0||d.getDay()===6,cls=`timeline-day ${weekend?'weekend':''} ${iso===today?'today':''}${calendarGlobalLocked?'':' clickable'}`,attrs=calendarGlobalLocked?'':` data-new-date="${iso}" data-new-category="${esc(category)}"`;return `<div class="${cls}"${attrs}></div>`}).join('')}
   function calendarWeekGroups(dates){let groups=[];dates.forEach((iso,i)=>{const d=dateObj(iso),week=isoWeek(d),year=d.getFullYear(),key=year+'-'+week,last=groups.at(-1);if(last&&last.key===key)last.count++;else groups.push({key,count:1,start:i,label:'W'+String(week).padStart(2,'0'),week,year})});return groups}
   function calendarDayWidth(){const host=globalThis.document?.getElementById?.('calendarGrid'),css=host&&globalThis.getComputedStyle?parseFloat(getComputedStyle(host).getPropertyValue('--day-w')):NaN;return Number.isFinite(css)&&css>0?css:(globalThis.matchMedia?.('(min-width:1051px)')?.matches?28:38)}
-  function calendarRowMetrics(){const compact=calendarDayWidth()<38;return compact?{minHeight:42,base:8,lane:26,top:8}:{minHeight:62,base:16,lane:36,top:8}}
+  function calendarRowMetrics(){const desktop=globalThis.matchMedia?.('(min-width:1051px)')?.matches;if(desktop)return{minHeight:34,base:6,lane:22,top:6};const compact=calendarDayWidth()<38;return compact?{minHeight:42,base:8,lane:26,top:8}:{minHeight:62,base:16,lane:36,top:8}}
   function coverageTeamTitle(value){const n=+value;return !Number.isFinite(n)||n===0||n===9?null:n===1?'Ferie Basse':n===3?'Ferie Medie':n===6?'Ferie Alte':'Peso '+n}
   function coverageTeamWeekSegments(dates){return calendarWeekGroups(dates).map(g=>{const index=weekIndex(g.year,g.week),raw=index>=0?state.scores[String(g.year)]?.categories?.['Copertura Team']?.[index]:null,value=raw===null||raw===undefined?null:+raw,normalized=Number.isFinite(value)?value:null,visibleStart=dates[g.start],day=dateObj(visibleStart).getDay()||7,weekStart=addDays(visibleStart,1-day),weekEnd=addDays(weekStart,6);return{...g,first:g.start,last:g.start+g.count-1,index,weekStart,weekEnd,value:normalized,title:coverageTeamTitle(normalized)}})}
   function weekHeader(dates){const dayWidth=calendarDayWidth();return calendarWeekGroups(dates).map(g=>`<div class="timeline-week-cell" style="width:${g.count*dayWidth}px">${g.label}${calendarFilters.years.length>1?' · '+g.year:''}</div>`).join('')}
@@ -969,7 +1055,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function exportYear(year){const d=state.scores[year],ts=totals(year);let table='<table border="1"><tr><th>Leva</th>'+d.weeks.map(w=>'<th>'+w+'</th>').join('')+'</tr>'+cats.map(c=>'<tr><td>'+c+'</td>'+d.categories[c].map(v=>'<td>'+v+'</td>').join('')+'</tr>').join('')+'<tr><td><b>PRESSIONE SETTIMANALE</b></td>'+ts.map(v=>'<td><b>'+v+'</b></td>').join('')+'</tr></table>';download('WOP_matrice_'+year+'.xls','<html><meta charset="utf-8"><body>'+table+'</body></html>','application/vnd.ms-excel')}
   function exportComparison(){const ctx=analysisContext();if(!ctx.years.length){toast('Seleziona almeno un periodo da esportare');return}const current=ctx.years.at(-1),base=ctx.years.length>1?ctx.years[0]:null,heads=base?['Leva','Media '+current,'Media '+base,'Delta','Delta %']:['Leva','Media '+current],rows=cats.map(c=>{const x=categoryAverage(current,c,ctx.indices[current]);if(!base)return[c,x];const y=categoryAverage(base,c,ctx.indices[base]),d=x-y;return[c,x,y,d,y?d/y:0]});download('WOP_confronto_'+current+(base?'_vs_'+base:'')+'.csv','\ufeff'+[heads,...rows].map(r=>r.map(csvCell).join(';')).join('\n'),'text/csv;charset=utf-8')}
 
-  const APP_VERSION='v5.6';
+  const APP_VERSION='v5.7';
   const exportPageNames={dashboard:'Dashboard',calendar:'Calendario operativo',activities:'Registro attività',planning:'Pianificazione WOP',analysis:'Analisi e confronto',uco:'Metodo UCO',settings:'Regole e dati'};
   function activeViewKey(){return $('.view.active')?.id.replace('view-','')||'dashboard'}
   function selectedText(id){const el=$('#'+id);return el?.selectedOptions?.[0]?.textContent?.trim()||el?.value||'—'}
