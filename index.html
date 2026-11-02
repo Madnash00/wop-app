@@ -779,6 +779,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function drawLineChart(host,labels,values,lines=[],second=null,pressureColors=false){
+    // The Dashboard may receive remote updates while hidden. Keep its last correct geometry until it is visible again.
+    if(host.id==='trendChart' && host._wopChartObserver && (host.clientWidth<200 || host.clientHeight<150)){
+      host._wopChartArgs={labels,values,lines,second,pressureColors};
+      host._wopChartDeferred=true;
+      return;
+    }
+    if(host.id==='trendChart')host._wopChartDeferred=false;
     // Renders in the actual desktop panel aspect ratio: fonts stay undistorted and circles remain round.
     const W=Math.max(420,Math.round(host.clientWidth||900)),H=Math.max(205,Math.round(host.clientHeight||270));
     const p={l:42,r:18,t:second?34:20,b:33};
@@ -831,7 +838,14 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     host._wopChartArgs={labels,values,lines,second,pressureColors};
     if(!host._wopChartObserver&&typeof ResizeObserver!=='undefined'){
       let lastW=W,lastH=H;
-      host._wopChartObserver=new ResizeObserver(()=>{const nw=host.clientWidth,nh=host.clientHeight;if(nw<200||nh<150||Math.abs(nw-lastW)<2&&Math.abs(nh-lastH)<2)return;lastW=nw;lastH=nh;if(host._wopChartPending)return;host._wopChartPending=true;requestAnimationFrame(()=>{host._wopChartPending=false;const a=host._wopChartArgs;if(a)drawLineChart(host,a.labels,a.values,a.lines,a.second,a.pressureColors)})});
+      host._wopChartObserver=new ResizeObserver(()=>{const nw=host.clientWidth,nh=host.clientHeight;
+        if(nw<200||nh<150)return;
+        if(host.id==='trendChart'){
+          // Compare the *rendered SVG*, not stale container measurements after a hidden-tab refresh.
+          const vb=host.querySelector('svg')?.viewBox?.baseVal;
+          if(!host._wopChartDeferred && vb && Math.abs(vb.width-nw)<2 && Math.abs(vb.height-nh)<2)return;
+        }else if(Math.abs(nw-lastW)<2&&Math.abs(nh-lastH)<2)return;
+        lastW=nw;lastH=nh;if(host._wopChartPending)return;host._wopChartPending=true;requestAnimationFrame(()=>{host._wopChartPending=false;const a=host._wopChartArgs;if(a)drawLineChart(host,a.labels,a.values,a.lines,a.second,a.pressureColors)})});
       host._wopChartObserver.observe(host);
     }
   }
