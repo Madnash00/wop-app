@@ -763,7 +763,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     $('#exportActivities').onclick=exportActivities;$('#exportScores').onclick=()=>exportYear($('#planYear').value);$('#exportDashboard').onclick=()=>exportYear($('#dashYear').value);$('#exportAnalysis').onclick=exportComparison;
     $('#exportDashboardFormatted').onclick=()=>exportPageStyledExcel('dashboard');$('#exportAnalysisFormatted').onclick=()=>exportPageStyledExcel('analysis');
     $('#quickPrint').onclick=createPdf;$('#quickExcel').onclick=createExcel;
-    if(WOP_STORE_READ_ONLY){showView('calendar');initRemoteSync();return;}renderSettings();renderUcoMethod();renderDashboard();renderCalendar();renderActivities();renderPlanning();renderAnalysis();initRemoteSync();
+    if(WOP_STORE_READ_ONLY){applyStoreCalendarWindow();showView('calendar');initRemoteSync();return;}renderSettings();renderUcoMethod();renderDashboard();renderCalendar();renderActivities();renderPlanning();renderAnalysis();initRemoteSync();
   }
   function showView(name){if(WOP_STORE_READ_ONLY&&name!=='calendar')return;$$('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+name));$$('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===name));const b=$(`#nav button[data-view="${name}"]`);$('#topTitle').textContent=b?b.textContent.trim():'WOP';$('#sidebar').classList.remove('open');if(name==='calendar')renderCalendar();if(name==='planning'){const target=calendarPlanningTarget();if(target&&state.scores[target.year])$('#planYear').value=target.year;renderPlanning();requestAnimationFrame(centerPlanningOnCalendar)}if(name==='analysis')renderAnalysis();if(name==='uco')renderUcoMethod()}
 
@@ -855,9 +855,32 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   function multiFilterCaption(selected,options){const all=selected.length===options.length;return !selected.length?'Nessuna selezione':all?'Tutti':selected.length===1?(options.find(o=>o.value===selected[0])?.label||selected[0]):selected.length+' selezionati'}
   function updateMultiFilterUi(host,label,selected,options){const caption=multiFilterCaption(selected,options),captionEl=host.querySelector(':scope>button span:first-child');if(captionEl)captionEl.textContent=`${label}: ${caption}`}
   function renderMultiFilter(id,key,label,options){const host=$('#'+id),selected=calendarFilters[key]||[],caption=multiFilterCaption(selected,options);host.innerHTML=`<button class="btn" type="button"><span>${label}: ${esc(caption)}</span><span>⌄</span></button><div class="multi-menu"><div class="multi-actions"><button class="btn small" type="button" data-multi-all>Tutti</button><button class="btn small" type="button" data-multi-none>Azzera</button></div>${options.map(o=>`<label class="multi-option"><input type="checkbox" value="${o.value}" ${selected.includes(o.value)?'checked':''}> ${esc(o.label)}</label>`).join('')}</div>`;host.querySelector(':scope>button').onclick=e=>{e.stopPropagation();$$('.multi-filter.open').filter(x=>x!==host).forEach(x=>x.classList.remove('open'));host.classList.toggle('open')};host.querySelector('.multi-menu').onclick=e=>e.stopPropagation();$$('input',host).forEach(c=>c.onchange=()=>{calendarFilters[key]=$$('input:checked',host).map(x=>x.value);persistCalendarFilters();updateMultiFilterUi(host,label,calendarFilters[key],options);renderCalendar({filters:false})});$('[data-multi-all]',host).onclick=()=>{$$('input',host).forEach(x=>x.checked=true);calendarFilters[key]=options.map(o=>o.value);persistCalendarFilters();updateMultiFilterUi(host,label,calendarFilters[key],options);renderCalendar({filters:false})};$('[data-multi-none]',host).onclick=()=>{$$('input',host).forEach(x=>x.checked=false);calendarFilters[key]=[];persistCalendarFilters();updateMultiFilterUi(host,label,calendarFilters[key],options);renderCalendar({filters:false})}}
-  function persistCalendarFilters(){saveLocalPreferences()}
+  /* NEGOZIO: all'apertura il calendario si posiziona sulla settimana corrente e
+     mostra le tre successive. La finestra e' un elenco esplicito di giorni: filtrare
+     per numero di settimana non basterebbe, perche' a cavallo d'anno le stesse
+     settimane esistono anche nell'anno precedente. */
+  const STORE_CALENDAR_WEEKS=4;
+  let storeCalendarDays=null;
+  function storeCalendarWindowDays(){
+   const now=new Date(),monday=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+   monday.setDate(monday.getDate()-((monday.getDay()||7)-1));
+   const days=[];
+   for(let i=0;i<STORE_CALENDAR_WEEKS*7;i++)days.push(new Date(monday.getFullYear(),monday.getMonth(),monday.getDate()+i));
+   return days;
+  }
+  function applyStoreCalendarWindow(){
+   const days=storeCalendarWindowDays();
+   storeCalendarDays=days.map(isoDate);
+   // I filtri restano coerenti con cio' che si vede, cosi' le tendine non mentono.
+   calendarFilters.years=[...new Set(days.map(d=>String(d.getFullYear())))];
+   calendarFilters.months=[...new Set(days.map(d=>String(d.getMonth()+1)))];
+   calendarFilters.weeks=[...new Set(days.map(d=>String(isoWeek(d))))];
+   calendarDate=days[0];
+  }
+  // Appena l'utente tocca un filtro la finestra iniziale viene rilasciata.
+  function persistCalendarFilters(){storeCalendarDays=null;saveLocalPreferences()}
   function renderCalendarFilters(){const d=calendarFilterDefs();renderMultiFilter('calendarYearFilter','years','Anno',d.years);renderMultiFilter('calendarMonthFilter','months','Mese',d.months);renderMultiFilter('calendarWeekFilter','weeks','Settimana',d.weeks)}
-  function getCalendarDates(){if(!calendarFilters.years.length||!calendarFilters.months.length||!calendarFilters.weeks.length)return[];const dates=[];calendarFilters.years.map(Number).sort((a,b)=>a-b).forEach(y=>{for(let m=0;m<12;m++){if(!calendarFilters.months.includes(String(m+1)))continue;const last=new Date(y,m+1,0).getDate();for(let n=1;n<=last;n++){const d=new Date(y,m,n,12);if(calendarFilters.weeks.includes(String(isoWeek(d))))dates.push(isoDate(d))}}});return dates}
+  function getCalendarDates(){if(storeCalendarDays)return storeCalendarDays.slice();if(!calendarFilters.years.length||!calendarFilters.months.length||!calendarFilters.weeks.length)return[];const dates=[];calendarFilters.years.map(Number).sort((a,b)=>a-b).forEach(y=>{for(let m=0;m<12;m++){if(!calendarFilters.months.includes(String(m+1)))continue;const last=new Date(y,m+1,0).getDate();for(let n=1;n<=last;n++){const d=new Date(y,m,n,12);if(calendarFilters.weeks.includes(String(isoWeek(d))))dates.push(isoDate(d))}}});return dates}
   function shiftCalendarMonth(delta){const selectedYear=calendarFilters.years.length===1?+calendarFilters.years[0]:calendarDate.getFullYear(),selectedMonth=calendarFilters.months.length===1?+calendarFilters.months[0]-1:calendarDate.getMonth();calendarDate=new Date(selectedYear,selectedMonth+delta,1);calendarFilters.years=[String(calendarDate.getFullYear())];calendarFilters.months=[String(calendarDate.getMonth()+1)];calendarFilters.weeks=calendarFilterDefs().weeks.map(x=>x.value);persistCalendarFilters();renderCalendar()}
   function dayCellsFromDates(dates,category){const today=isoDate(new Date());return dates.map(iso=>{const d=dateObj(iso),weekend=d.getDay()===0||d.getDay()===6,cls=`timeline-day ${weekend?'weekend':''} ${iso===today?'today':''}${calendarGlobalLocked?'':' clickable'}`,attrs=calendarGlobalLocked?'':` data-new-date="${iso}" data-new-category="${esc(category)}"`;return `<div class="${cls}"${attrs}></div>`}).join('')}
   function calendarWeekGroups(dates){let groups=[];dates.forEach((iso,i)=>{const d=dateObj(iso),week=isoWeek(d),year=d.getFullYear(),key=year+'-'+week,last=groups.at(-1);if(last&&last.key===key)last.count++;else groups.push({key,count:1,start:i,label:'W'+String(week).padStart(2,'0'),week,year})});return groups}
